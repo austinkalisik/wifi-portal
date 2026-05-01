@@ -1,58 +1,237 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Nextgen WiFi Portal
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel 13 WiFi access portal for **Nextgen Technology**.
 
-## About Laravel
+The system provides an admin dashboard, a guest captive portal flow, local access-plan management, API endpoints for routers/external systems, and an optional Spotipo integration for sites, vouchers, and guest users.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Admin login and protected dashboard
+- Guest login page
+- Guest access options:
+  - Watch ads for short access
+  - Select a subscription plan for paid access
+- Business profile and splash page branding
+- Ad/subscription plan management
+- Router registration and heartbeat API
+- Device whitelist/blocklist
+- Guest session tracking
+- MySQL database support
+- Spotipo API integration:
+  - Sites test
+  - Voucher CRUD
+  - Guest user CRUD
+  - `Authentication-Token` header
+  - Mocked feature tests
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+- Laravel 13
+- PHP 8.3+
+- MySQL
+- Vite
+- Tailwind CSS
+- Laravel HTTP client
+- PHPUnit feature tests
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Requirements
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP 8.3 or newer
+- Composer
+- Node.js and npm
+- MySQL or MariaDB
+- A database named:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+nextgen-wifi-portal
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Installation
 
-## Contributing
+Clone the repository:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+git clone https://github.com/austinkalisik/wifi-portal.git
+cd wifi-portal
+```
 
-## Code of Conduct
+Install dependencies:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer install
+npm install
+```
 
-## Security Vulnerabilities
+Create environment file:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+copy .env.example .env
+php artisan key:generate
+```
 
-## License
+Configure database in `.env`:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nextgen-wifi-portal
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Run migrations and seed default data:
+
+```bash
+php artisan migrate --force
+php artisan db:seed --force
+```
+
+Build frontend assets:
+
+```bash
+npm run build
+```
+
+Run the local server:
+
+```bash
+php artisan serve --host=127.0.0.1 --port=8002
+```
+
+For LAN testing, use your machine IP:
+
+```bash
+php artisan serve --host=192.168.31.34 --port=8002
+```
+
+## Default Login
+
+Admin login URL:
+
+```text
+/login
+```
+
+Seeded local admin:
+
+```text
+Email: admin@nextgentechnology.local
+Password: Nextgen@12345
+```
+
+Change this password before production.
+
+## Main URLs
+
+```text
+/                  Admin dashboard, requires login
+/login             Admin login
+/guest             Guest captive portal
+/admin/spotipo     Admin-only Spotipo integration page
+/api/portal/*      Local portal API endpoints
+```
+
+## Guest Flow
+
+1. Guest opens `/guest`.
+2. Guest enters name and device MAC address.
+3. System shows two access choices:
+   - `Watch Ad and Connect`
+   - `Subscribe and Connect`
+4. The selected action creates a `guest_sessions` record.
+
+## Local API
+
+All portal API requests require:
+
+```text
+X-Portal-Key: business-api-key
+```
+
+Endpoints:
+
+```text
+GET  /api/portal/config
+GET  /api/portal/routers
+POST /api/portal/router-heartbeat
+POST /api/portal/sessions
+POST /api/portal/ad-access
+POST /api/portal/subscription-access
+```
+
+## Spotipo Configuration
+
+Add your Spotipo settings to `.env`:
+
+```env
+WIFI_ACCESS_PROVIDER=local
+SPOTIPO_BASE_URL=https://api.spotipo.com
+SPOTIPO_AUTH_TOKEN=
+SPOTIPO_SITE_ID=
+SPOTIPO_TIMEOUT=15
+```
+
+Do not commit real Spotipo tokens.
+
+After changing `.env`, run:
+
+```bash
+php artisan optimize:clear
+```
+
+Spotipo admin page:
+
+```text
+/admin/spotipo
+```
+
+Spotipo integration documentation:
+
+- `README_SPOTIPO_UPGRADE.md`
+- `PROPOSAL.md`
+
+## Tests
+
+Run all tests:
+
+```bash
+php artisan test
+```
+
+Run only Spotipo tests:
+
+```bash
+php artisan test --filter=SpotipoIntegrationTest
+```
+
+The Spotipo tests use Laravel `Http::fake()` and do not call the real Spotipo API.
+
+## Documentation
+
+Additional project docs:
+
+- `NEXTGEN_SYSTEM_GUIDE.md`
+- `README_SPOTIPO_UPGRADE.md`
+- `PROPOSAL.md`
+
+## Production Checklist
+
+- Set `APP_ENV=production`
+- Set `APP_DEBUG=false`
+- Set a real `APP_URL`
+- Use HTTPS
+- Change the default admin password
+- Use a secure MySQL user, not root
+- Configure real payment gateway webhook verification
+- Configure real ad-network callback verification
+- Configure router enforcement scripts for the target router hardware
+- Store all secrets in `.env`
+- Run:
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+npm run build
+```
